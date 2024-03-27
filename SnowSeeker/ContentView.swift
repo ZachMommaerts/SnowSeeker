@@ -16,6 +16,7 @@ extension View {
         }
     }
 }
+
 struct ContentView: View {
     let resorts: [Resort] = Bundle.main.decode("resorts.json")
     
