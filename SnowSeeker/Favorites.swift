@@ -13,8 +13,21 @@ class Favorites {
     private let key = "Favorites"
     
     init() {
-        //write load code
-        resorts = []
+        let directoryURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let filePath = directoryURL.appendingPathComponent(key)
+        
+        do {
+            let savedData = try Data(contentsOf: filePath)
+            if let savedString = String(data: savedData, encoding: .utf8) {
+                let resortArray = savedString.components(separatedBy: ",")
+                resorts = Set(resortArray)
+            } else {
+                resorts = []
+            }
+        } catch {
+            resorts = []
+            print("Unable to read the file")
+        }
     }
     
     func contains(_ resort: Resort) -> Bool {
@@ -32,6 +45,15 @@ class Favorites {
     }
     
     func save() {
-        //write save code
+        let data = Data([String](resorts).joined(separator: ",").utf8)
+        let url = URL.documentsDirectory.appending(path: key)
+
+        do {
+            try data.write(to: url, options: [.atomic, .completeFileProtection])
+            let input = try String(contentsOf: url)
+            print(input)
+        } catch {
+            print(error.localizedDescription)
+        }
     }
 }
