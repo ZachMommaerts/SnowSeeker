@@ -19,15 +19,34 @@ extension View {
 
 struct ContentView: View {
     let resorts: [Resort] = Bundle.main.decode("resorts.json")
+    let sortOptions = ["Default", "Alphabetical", "Country"]
     
     @State private var favorites = Favorites()
     @State private var searchText = ""
+    @State private var sortOption = "default"
+    
+    var sortedResorts: [Resort] {
+        var sortedResortArray = [Resort]()
+    
+        switch sortOption {
+        case "Alphabetical":
+            sortedResortArray = resorts.sorted { $0.name < $1.name }
+        case "Country":
+            sortedResortArray = resorts.sorted { $0.country < $1.country }
+        case "Default":
+            sortedResortArray = resorts
+        default:
+            sortedResortArray = resorts
+        }
+        
+        return sortedResortArray
+    }
     
     var filteredResorts: [Resort] {
         if searchText.isEmpty {
-            resorts
+            sortedResorts
         } else {
-            resorts.filter { $0.name.localizedStandardContains(searchText) }
+            sortedResorts.filter { $0.name.localizedStandardContains(searchText) }
         }
     }
     
@@ -65,6 +84,13 @@ struct ContentView: View {
             }
             .navigationTitle("Resorts")
             .searchable(text: $searchText, prompt: "Search for a resort")
+            .toolbar{
+                Picker("Sort by", selection: $sortOption) {
+                    ForEach(sortOptions, id: \.self) {
+                        Text($0)
+                    }
+                }
+            }
             
             WelcomeView()
         }
